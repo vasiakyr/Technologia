@@ -1,4 +1,15 @@
-Λουκάς: Mockup screnes, 2 use cases
-Παρασκευή: Project Description, 2 use cases
-Κυριακή: Team-plan, Project-plan, 2 use cases
-Βάσια: Risk-assessment, 2 use cases
+1ο παραδοτέο:
+  Basic tasks:
+        Mockup screnes
+        Project Description
+        Team-plan, Project-plan
+        Risk-assessment
+        8 use cases
+        domain model
+
+  subtasks:
+        Mockup screnes(Λουκάς): login, register, interfaces αρχικής κάθε χρήστη, των use cases
+        project description(Παρασκευή): όνομα, διάφοροι χρήστες, λειτυοργίες, συμαντικότητα
+        team-plan: gantt(Λουκάς σχδίαση, συζήτηση με όλα τα μέλη), pert(Κυριακή), agile(Κυριακή), εργαλεία(Κυριακή)
+        risk-assessment(Βάσια): κίνδυνοι έξω απο το project, κίνδυνοι εντός του project
+        use cases: 2 Λουκάς, 2 Βάσια, 2 Παρασκευή, 2 Κυριακή
