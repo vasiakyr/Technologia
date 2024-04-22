@@ -68,30 +68,3 @@ Blood_Donation_Appointment: Οντότητα που αφορά προγραμμ�
 
 
 Distance: Οντότητα που αφορά την απόσταση μεταξύ πολίτη και φαρμακείων. Περιλαμβάνει μια μέθοδο για τον υπολογισμό των αποστάσεων μεταξύ τους.   
-
-
-
-
-~~~~  Προσθήκη attributes και methods ~~~~
-
-6. Medicine: (use case 1 - αναζητηση φαρμακου)(use case 4 - διαθεσιμοτητα κ κρατησεις φαρμακων)
-	company, expire, mls, num_of_pills, diathesimotita	
-	get_list_of_med(), get_med_info(), filterted_med_search(), reserve_med(), time_for_reservetion()
-	
-7. Doctor_Speciality: (use case 2 - αναζήτηση γιατρού)
-	eidikotita, hronia_empirias, key_words=[]
-	get_info(), match_key_words()
-
-8. Blood_Donation_Unit: (use case 3 - αιμοδοσια)
-	location, programma, chairs, hospital, doctors=[]
-	get_info(), randevouz(), notify_doct()
-
-9. Wallet_Form: (use case 8 - πορτοφόλι υγείας)
-	int medicines=[], int vaccines=[], int doct_ap[]
-	get_form(), calculate(), show_expenses()
-
-10. Digital_Prescription_From: (use case 6 - ψηφιακή συνταγογράφηση)
-	amka, onoma, eponimo, date, med_name, doseis, syhnotita, doct_name
-	get_form(), match_amka_with_patient(), save_form()
-
-
