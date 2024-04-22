@@ -1,0 +1,45 @@
+CLASSES – ATTRIBUTES
+Για 1 έως 5
+
+1.	User :  userID, username, password, e-mail, phone, date, role
+               Login(), Logout(), UpdateProfile()
+
+•	Date: ημερομηνία εγγραφής.
+•	Role: ιδιότητα χρήστη πχ γιατρός , πολίτης, φαρμακοποιός.
+•	Login(): μέθοδος για την σύνδεση στην εφαρμογή.
+•	Logout(): μέθοδος για την αποσύνδεση από την εφαρμογή.
+•	UpdateProfile(): μέθοδος για την ενημέρωση προσωπικών στοιχείων (πχ στο use case 5 ).
+
+2.	Citizen : username, amka, sex, age,  medicalHistory
+                    viewMedicalHistory(), UpdateProfile()
+
+•	medicalHistory: ιατρικό ιστορικό του πολίτη.
+•	viewMedicalHistory(): μέθοδος για να μπορεί να δει το ιστορικό του.
+
+3.	Doctor : name, surname, phone, e-mail, specialty, hospital
+                   prescribeMedication(), requestConsultation(),                 vaccineRegistration()
+
+•	specialty: ειδικότητα του γιατρού πχ καρδιολόγος, παθολόγος.
+•	hospital: σε ποιο νοσοκομείο δουλεύει (όνομα νοσοκομείου-κλινικής).
+•	prescribeMedication(): μέθοδος για την συνταγογράφηση φαρμάκων.
+•	requestConsultation(): μέθοδος για να ζητήσει κάποιος πολίτης συμβουλές-απορίες (μέσω τσατ ουσιαστικά?) (use case 2).
+•	vaccineRegistration(): μέθοδος για την καταχώρηση εμβολίου .
+
+
+
+
+4.	Pharmacist : pharmacistID, pharmacy, name, surname, phone, e-mail, address
+                                            checkMedicationStock(), reservationRegistration(), timeForReservation()
+
+•	checkMedicationStock(): μέθοδος για τον έλεγχο διαθεσιμότητας κάποιου φαρμάκου.
+•	reservationRegistration(): μέθοδος για την κράτηση κάποιου φαρμάκου.
+•	timeForReservation(): μέθοδος που υπολογίζει τον χρόνο ώστε να είναι έγκυρη η κράτηση (48 ώρες , βλέπε use case 4).
+
+
+5.	Pharmacy : pharmacyID ,name, location, phone, openHours
+                                         addMedication(), removeMedication()
+
+•	location: τοποθεσία που βρίσκεται το φαρμακείο.
+•	openHours: ώρες που είναι ανοικτό  .
+•	addMedication(): μέθοδος για την ενημέρωση αν προσθέσουμε νέα φάρμακα.
+•	removeMedication(): μέθοδος για την ενημέρωση αν αφαιρέσουμε φάρμακα.
