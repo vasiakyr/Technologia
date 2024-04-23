@@ -1,7 +1,7 @@
 CLASSES – ATTRIBUTES
 Για 1 έως 5
 
-1.	User :  userID, username, password, e-mail, phone, date, role
+1.	User :  username, name, surname, password, e-mail, phone, date, role
                Login(), Logout(), UpdateProfile()
 
 •	Date: ημερομηνία εγγραφής.
@@ -10,36 +10,41 @@ CLASSES – ATTRIBUTES
 •	Logout(): μέθοδος για την αποσύνδεση από την εφαρμογή.
 •	UpdateProfile(): μέθοδος για την ενημέρωση προσωπικών στοιχείων (πχ στο use case 5 ).
 
-2.	Citizen : username, amka, sex, age,  medicalHistory
-                    viewMedicalHistory(), UpdateProfile()
+2.	Citizen : name, surname,  username, amka, sex, age,  medicalHistory
+                    updateMedicalHistory(), UpdateProfile(), viewMedicalHistory()
 
 •	medicalHistory: ιατρικό ιστορικό του πολίτη.
-•	viewMedicalHistory(): μέθοδος για να μπορεί να δει το ιστορικό του.
+•	updateMedicalHistory(): μέθοδος για να μπορεί να ενημερώσει το ιστορικό του.
+•	viewMedicalHistory() : μέθοδος για να μπορεί να δει το ιστορικό του.
 
-3.	Doctor : name, surname, phone, e-mail, specialty, hospital
-                   prescribeMedication(), requestConsultation(),                 vaccineRegistration()
+3.	Doctor : name, surname, phone, e-mail, specialty, hospital, address
+                   prescribeMedication(), acceptRequestConsultation(),                 vaccineRegistration(), addCitizen()
 
 •	specialty: ειδικότητα του γιατρού πχ καρδιολόγος, παθολόγος.
 •	hospital: σε ποιο νοσοκομείο δουλεύει (όνομα νοσοκομείου-κλινικής).
 •	prescribeMedication(): μέθοδος για την συνταγογράφηση φαρμάκων.
-•	requestConsultation(): μέθοδος για να ζητήσει κάποιος πολίτης συμβουλές-απορίες (μέσω τσατ ουσιαστικά?) (use case 2).
+•	acceptRequestConsultation(): μέθοδος για να ζητήσει κάποιος πολίτης συμβουλές-απορίες (μέσω τσατ ουσιαστικά?) (use case 2).
 •	vaccineRegistration(): μέθοδος για την καταχώρηση εμβολίου .
+•	addCitizen() : μέθοδος για να προσθέτει πολίτες.
 
 
 
 
-4.	Pharmacist : pharmacistID, pharmacy, name, surname, phone, e-mail, address
-                                            checkMedicationStock(), reservationRegistration(), timeForReservation()
+4.	Pharmacist : pharmacy, name, surname, phone, e-mail, address
+                                      reservationRegistration(), timeForReservation(), availablePharmacy()
 
-•	checkMedicationStock(): μέθοδος για τον έλεγχο διαθεσιμότητας κάποιου φαρμάκου.
 •	reservationRegistration(): μέθοδος για την κράτηση κάποιου φαρμάκου.
-•	timeForReservation(): μέθοδος που υπολογίζει τον χρόνο ώστε να είναι έγκυρη η κράτηση (48 ώρες , βλέπε use case 4).
+•	timeForReservation(): μέθοδος που υπολογίζει τον χρόνο ώστε να είναι έγκυρη η κράτηση ή όχι (48 ώρες , βλέπε use case 4).
+•	availablePharmacy() : μέθοδος που επεξεργάζεται το πρόγραμμα των φαρμακείων.
 
 
-5.	Pharmacy : pharmacyID ,name, location, phone, openHours
-                                         addMedication(), removeMedication()
+5.	Pharmacy : pharmacyID ,name, location, phone, openHours[]
+                                         addMedication(), removeMedication(), declineRequest(), requestReservation(), acceptRequest():
 
 •	location: τοποθεσία που βρίσκεται το φαρμακείο.
-•	openHours: ώρες που είναι ανοικτό  .
+•	openHours[]: ώρες που είναι ανοικτό  .
 •	addMedication(): μέθοδος για την ενημέρωση αν προσθέσουμε νέα φάρμακα.
 •	removeMedication(): μέθοδος για την ενημέρωση αν αφαιρέσουμε φάρμακα.
+•	requestReservation(): μέθοδος για αίτημα κράτησης.
+•	acceptRequest(): μέθοδος για αποδοχή κράτησης.
+•	declineRequest(): μέθοδος για απόρριψη κράτησης.
