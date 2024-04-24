@@ -50,3 +50,9 @@ CLASSES – ATTRIBUTES
 •	requestReservation(): μέθοδος για αίτημα κράτησης.
 •	acceptRequest(): μέθοδος για αποδοχή κράτησης.
 •	declineRequest(): μέθοδος για απόρριψη κράτησης.
+
+
+
+
++ λιστα κρατησεων
++ λιστα ασθενων 
