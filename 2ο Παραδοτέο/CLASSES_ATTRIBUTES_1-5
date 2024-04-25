@@ -31,13 +31,15 @@ CLASSES – ATTRIBUTES
 
 
 4.	Pharmacist : pharmacy, name, surname, phone, e-mail, address
-                                      reservationRegistration(), timeForReservation(), availablePharmacy(), completeForm(), selectMedicine()
+                                      reservationRegistration(), timeForReservation(), availablePharmacy(), completeForm(), selectMedicine(), save_reservation()
 
 •	reservationRegistration(): μέθοδος για την κράτηση κάποιου φαρμάκου.
 •	timeForReservation(): μέθοδος που υπολογίζει τον χρόνο ώστε να είναι έγκυρη η κράτηση ή όχι (48 ώρες , βλέπε use case 4).
 •	availablePharmacy() : μέθοδος που επεξεργάζεται το πρόγραμμα των φαρμακείων.
-•	completeForm(): συμπληρώνει φόρμα για κράτηση.
+•	Complete_form(): συμπληρώνει φόρμα για κράτηση.
 •	selectMedicine(): επιλέγει το φάρμακο.
+•	save_reservation(): αποθηκεύει την φόρμα.
+
 
 
 5.	Pharmacy : pharmacyID ,name, location, phone, openHours[]
@@ -50,9 +52,3 @@ CLASSES – ATTRIBUTES
 •	requestReservation(): μέθοδος για αίτημα κράτησης.
 •	acceptRequest(): μέθοδος για αποδοχή κράτησης.
 •	declineRequest(): μέθοδος για απόρριψη κράτησης.
-
-
-
-
-+ λιστα κρατησεων
-+ λιστα ασθενων 
