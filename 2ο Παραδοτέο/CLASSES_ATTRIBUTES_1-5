@@ -11,37 +11,40 @@ CLASSES – ATTRIBUTES
 •	UpdateProfile(): μέθοδος για την ενημέρωση προσωπικών στοιχείων (πχ στο use case 5 ).
 
 2.	Citizen : name, surname,  username, amka, sex, age,  medicalHistory
-                    updateMedicalHistory(), UpdateProfile(), viewMedicalHistory()
+                       update(), UpdateProfile(),         viewMedicalHistory(), search_filter() search_text_field(), select_wallet(), select(), see_history(), giveanswer()
 
 •	medicalHistory: ιατρικό ιστορικό του πολίτη.
-•	updateMedicalHistory(): μέθοδος για να μπορεί να ενημερώσει το ιστορικό του.
+•	update(): μέθοδος για να μπορεί να ενημερώσει το προφίλ του.
 •	viewMedicalHistory() : μέθοδος για να μπορεί να δει το ιστορικό του.
-
+•	search_filter(): μέθοδος για την αναζήτηση φίλτρων.
+•	search_text_field(): μέθοδος για την εισαγωγή φίλτρων.
+•	select_wallet(): επιλογή του ηλεκτρονικού πορτοφολιού.
+•	select(): μέθοδος που δείχνει στον πολίτη τα έξοδά του 
+•	see_history(): μέθοδος για να δει το ιστορικό του.
+•	giveanswer(): δίνει απαντήσεις όταν χρησιμοποιεί το chat.
 3.	Doctor : name, surname, phone, e-mail, specialty, hospital, address
-                   prescribeMedication(), acceptRequestConsultation(),                 vaccineRegistration(), addCitizen()
+                   vaccineRegistration(), complete_amka(), complete_prescription(), save_prescription(), search_user(), select_ prescription(), add_patient()
 
 •	specialty: ειδικότητα του γιατρού πχ καρδιολόγος, παθολόγος.
 •	hospital: σε ποιο νοσοκομείο δουλεύει (όνομα νοσοκομείου-κλινικής).
-•	prescribeMedication(): μέθοδος για την συνταγογράφηση φαρμάκων.
-•	acceptRequestConsultation(): μέθοδος για να ζητήσει κάποιος πολίτης συμβουλές-απορίες (μέσω τσατ ουσιαστικά?) (use case 2).
 •	vaccineRegistration(): μέθοδος για την καταχώρηση εμβολίου .
-•	addCitizen() : μέθοδος για να προσθέτει πολίτες.
-
-
+•	add_patient(): μέθοδος για να προσθέτει πολίτες.
+•	complete_amka(): συμπληρώνει ΑΜΚΑ του πολίτη.
+•	complete_prescription(): o γιατρός συμπληρώνει την φόρμα συνταγογράφησης.
+•	save_prescription(): αποθήκευση της φόρμας συνταγογράφησης.
+•	search_user(): αναζήτηση χρήστη.
+•	select_ prescription(): επιλογή για δημιουργία συνταγογράφησης.
 
 
 4.	Pharmacist : pharmacy, name, surname, phone, e-mail, address
-                                      reservationRegistration(), timeForReservation(), availablePharmacy(), completeForm(), selectMedicine(), save_reservation()
+                                       timeForReservation(), availablePharmacy(), completeForm(), selectMedicine(), save_reservation(), reservation_medicine()
 
-•	reservationRegistration(): μέθοδος για την κράτηση κάποιου φαρμάκου.
+•	reservation_medicine (): μέθοδος για την κράτηση κάποιου φαρμάκου.
 •	timeForReservation(): μέθοδος που υπολογίζει τον χρόνο ώστε να είναι έγκυρη η κράτηση ή όχι (48 ώρες , βλέπε use case 4).
 •	availablePharmacy() : μέθοδος που επεξεργάζεται το πρόγραμμα των φαρμακείων.
-•	Complete_form(): συμπληρώνει φόρμα για κράτηση.
+•	complete_form(): συμπληρώνει φόρμα για κράτηση.
 •	selectMedicine(): επιλέγει το φάρμακο.
 •	save_reservation(): αποθηκεύει την φόρμα.
-
-
-
 5.	Pharmacy : pharmacyID ,name, location, phone, openHours[]
                                          addMedication(), removeMedication(), declineRequest(), requestReservation(), acceptRequest():
 
