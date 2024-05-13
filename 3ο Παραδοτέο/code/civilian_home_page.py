@@ -1,23 +1,12 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QVBoxLayout, QWidget, QLineEdit, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QLineEdit, QTextEdit
+from PyQt5.QtGui import QPixmap
 
 class DrugSearchPage(QMainWindow):
     def __init__(self):
         super().__init__()
 
         self.setWindowTitle('ΚΑΛΩΣ ΗΡΘΕΣ "ΟΝΟΜΑ ΧΡΗΣΤΗ"')
-
-        # Widgets
-        self.label_title = QLabel('Drug Search', self)
-        self.label_instructions = QLabel('Enter drug name:', self)
-        self.lineedit_drug_name = QLineEdit(self)
-        self.button_search = QPushButton('Search', self)
-
-        # Apply font, style, and color to the widgets
-        self.label_title.setStyleSheet("font-size: 24px; font-weight: bold; color: #336699;")
-        self.label_instructions.setStyleSheet("font-size: 18px; color: #333333;")
-        self.lineedit_drug_name.setStyleSheet("font-size: 16px; color: #333333; background-color: #f0f0f0;")
-        self.button_search.setStyleSheet("font-size: 16px; color: #ffffff; background-color: #008000;")
 
         # Vertical menu bar
         self.menu_layout = QVBoxLayout()
@@ -34,12 +23,38 @@ class DrugSearchPage(QMainWindow):
         self.menu_widget = QWidget()
         self.menu_widget.setLayout(self.menu_layout)
 
+        # Set the menu widget's minimum width to cover 1/5 of the window
+        menu_width = self.frameGeometry().width() // 5
+        self.menu_widget.setMinimumWidth(menu_width)
+
+        # Set background color of menu widget to light green
+        self.menu_widget.setStyleSheet("background-color: #CDEAC0;")
+
         # Content layout
         content_layout = QVBoxLayout()
-        content_layout.addWidget(self.label_title)
-        content_layout.addWidget(self.label_instructions)
-        content_layout.addWidget(self.lineedit_drug_name)
-        content_layout.addWidget(self.button_search)
+
+        # Profile photo
+        profile_photo_label = QLabel(self)
+        profile_photo_pixmap = QPixmap('profile_photo.png')  # Replace 'profile_photo.png' with the actual file path
+        profile_photo_label.setPixmap(profile_photo_pixmap)
+        content_layout.addWidget(profile_photo_label)
+
+        # Greeting message
+        greeting_label = QLabel('Welcome, ΟΝΟΜΑ ΧΡΗΣΤΗ!', self)
+        greeting_label.setStyleSheet("font-size: 20px; font-weight: bold;")  # Set font size and weight
+        content_layout.addWidget(greeting_label)
+
+
+
+        # Two boxes at the bottom center
+        bottom_layout = QHBoxLayout()
+        box1 = QLineEdit(self)
+        box1.setFixedSize(150, 30)  # Adjust the width and height as needed
+        box2 = QTextEdit(self)
+        box2.setFixedSize(150, 100)  # Adjust the width and height as needed
+        bottom_layout.addWidget(box1)
+        bottom_layout.addWidget(box2)
+        content_layout.addLayout(bottom_layout)
 
         # Combine menu and content layouts using QHBoxLayout
         main_layout = QHBoxLayout()
@@ -50,18 +65,8 @@ class DrugSearchPage(QMainWindow):
         main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
 
-        # Connect button signal to function
-        self.button_search.clicked.connect(self.search_drug)
-
         # Set the fixed size of the window
         self.setFixedSize(1200, 600)  # Adjust the width and height as needed
-
-    def search_drug(self):
-        # Get the drug name entered by the user
-        drug_name = self.lineedit_drug_name.text()
-
-        # Here you would implement the functionality to filter drugs based on the name
-        # and display the results to the user in a new window or widget.
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
