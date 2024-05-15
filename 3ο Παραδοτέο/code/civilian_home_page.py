@@ -49,9 +49,9 @@ class DrugSearchPage(QMainWindow):
         # Two boxes at the bottom center
         bottom_layout = QHBoxLayout()
         box1 = QLineEdit(self)
-        box1.setFixedSize(150, 30)  # Adjust the width and height as needed
+        box1.setFixedSize(1550, 800)  # Adjust the width and height as needed
         box2 = QTextEdit(self)
-        box2.setFixedSize(150, 100)  # Adjust the width and height as needed
+        box2.setFixedSize(1550, 800)  # Adjust the width and height as needed
         bottom_layout.addWidget(box1)
         bottom_layout.addWidget(box2)
         content_layout.addLayout(bottom_layout)
