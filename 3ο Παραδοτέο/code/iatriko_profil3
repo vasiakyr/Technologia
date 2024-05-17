@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QLineEdit, QTextEdit
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QLineEdit, QTextEdit, QMessageBox
 from PyQt5.QtCore import Qt
 
 class ContentWidget(QWidget):
@@ -17,32 +17,35 @@ class MedicalProfileWidget(QWidget):
         self.layout = QVBoxLayout()
 
         # Create labels and line edits for user details
+        self.first_name_label = QLabel("Όνομα:", self)
+        self.first_name_edit = QLineEdit("Γιάννης", self)
+
+        self.last_name_label = QLabel("Επώνυμο:", self)
+        self.last_name_edit = QLineEdit("Παπαδόπουλος", self)
 
         self.age_label = QLabel("Ηλικία:", self)
         self.age_edit = QLineEdit("30", self)
-        self.age_edit.setReadOnly(True)
 
         self.weight_label = QLabel("Βάρος:", self)
         self.weight_edit = QLineEdit("70kg", self)
-        self.weight_edit.setReadOnly(True)
 
         self.height_label = QLabel("Ύψος:", self)
         self.height_edit = QLineEdit("180cm", self)
-        self.height_edit.setReadOnly(True)
 
         self.pressure_label = QLabel("Πίεση:", self)
         self.pressure_edit = QLineEdit("120/80", self)
-        self.pressure_edit.setReadOnly(True)
 
         self.blood_group_label = QLabel("Ομάδα Αίματος:", self)
         self.blood_group_edit = QLineEdit("O+", self)
-        self.blood_group_edit.setReadOnly(True)
 
         self.eye_color_label = QLabel("Χρώμα Ματιών:", self)
         self.eye_color_edit = QLineEdit("Καστανά", self)
-        self.eye_color_edit.setReadOnly(True)
 
         # Add widgets to the layout
+        self.layout.addWidget(self.first_name_label)
+        self.layout.addWidget(self.first_name_edit)
+        self.layout.addWidget(self.last_name_label)
+        self.layout.addWidget(self.last_name_edit)
         self.layout.addWidget(self.age_label)
         self.layout.addWidget(self.age_edit)
         self.layout.addWidget(self.weight_label)
@@ -58,20 +61,50 @@ class MedicalProfileWidget(QWidget):
 
         # Add edit button
         self.edit_button = QPushButton("ΕΠΕΞΕΡΓΑΣΙΑ ΔΕΔΟΜΕΝΩΝ", self)
-        self.edit_button.clicked.connect(self.enable_editing)
+        self.edit_button.clicked.connect(self.save_data)
         self.layout.addWidget(self.edit_button)
 
         self.setLayout(self.layout)
 
-    def enable_editing(self):
-        self.first_name_edit.setReadOnly(False)
-        self.last_name_edit.setReadOnly(False)
-        self.age_edit.setReadOnly(False)
-        self.weight_edit.setReadOnly(False)
-        self.height_edit.setReadOnly(False)
-        self.pressure_edit.setReadOnly(False)
-        self.blood_group_edit.setReadOnly(False)
-        self.eye_color_edit.setReadOnly(False)
+    def save_data(self):
+        # Get data from line edits and do something with it (e.g., save to a file or database)
+        first_name = self.first_name_edit.text()
+        last_name = self.last_name_edit.text()
+        age = self.age_edit.text()
+        weight = self.weight_edit.text()
+        height = self.height_edit.text()
+        pressure = self.pressure_edit.text()
+        blood_group = self.blood_group_edit.text()
+        eye_color = self.eye_color_edit.text()
+
+        # Here you can perform actions with the retrieved data, such as saving it to a file or database
+        # For example:
+        with open('medical_profile.txt', 'w') as file:
+            file.write(f"First Name: {first_name}\n")
+            file.write(f"Last Name: {last_name}\n")
+            file.write(f"Age: {age}\n")
+            file.write(f"Weight: {weight}\n")
+            file.write(f"Height: {height}\n")
+            file.write(f"Pressure: {pressure}\n")
+            file.write(f"Blood Group: {blood_group}\n")
+            file.write(f"Eye Color: {eye_color}\n")
+
+        # Optionally, you can display a message to confirm that the data has been saved
+        QMessageBox.information(self, "Αποθήκευση Δεδομένων", "Τα δεδομένα αποθηκεύτηκαν επιτυχώς.")
+
+        # You can also clear the line edits after saving the data if needed
+        self.clear_line_edits()
+
+    def clear_line_edits(self):
+        # Clear all line edits
+        self.first_name_edit.clear()
+        self.last_name_edit.clear()
+        self.age_edit.clear()
+        self.weight_edit.clear()
+        self.height_edit.clear()
+        self.pressure_edit.clear()
+        self.blood_group_edit.clear()
+        self.eye_color_edit.clear()
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -119,15 +152,16 @@ class MainWindow(QMainWindow):
     def create_menu(self):
         menu_layout = QVBoxLayout()
         self.add_menu_button(menu_layout, 'ΑΡΧΙΚΗ', 'Home Page', 'This is the home page content.')
-        self.add_menu_button(menu_layout, 'CHAT', 'Chat Page', 'This is the chat page content.')
-        self.add_menu_button(menu_layout, 'ΒΟΗΘΕΙΑ', 'Help Page', 'This is the help page content.')
-        self.add_menu_button(menu_layout, 'ΙΑΤΡΙΚΟ ΠΡΟΦΙΛ', 'Medical Profile Page', 'This is the medical profile page content.', self.show_medical_profile)
-        self.add_menu_button(menu_layout, 'ΠΟΡΤΟΦΟΛΙ ΥΓΕΙΑΣ', 'Health Wallet Page', 'This is the health wallet page content.')
-        self.add_menu_button(menu_layout, 'ΕΠΙΚΟΙΝΩΝΙΑ', 'Contact Page', 'This is the contact page content.')
+        self.add_menu_button(menu_layout, 'CHAT', 'Chat', 'Αυτή είναι η σελίδα chat.')
+        self.add_menu_button(menu_layout, 'ΒΟΗΘΕΙΑ', 'Βοήθεια', 'Αυτή είναι η σελίδα βοήθειας.')
+        self.add_menu_button(menu_layout, 'ΙΑΤΡΙΚΟ ΠΡΟΦΙΛ', 'Ιατρικό Προφίλ', 'Αυτή είναι η σελίδα ιατρικού προφίλ.', self.show_medical_profile)
+        self.add_menu_button(menu_layout, 'ΠΟΡΤΟΦΟΛΙ ΥΓΕΙΑΣ', 'Πορτοφόλι Υγείας', 'Αυτή είναι η σελίδα πορτοφολιού υγείας.')
+        self.add_menu_button(menu_layout, 'ΕΠΙΚΟΙΝΩΝΙΑ', 'Επικοινωνία', 'Αυτή είναι η σελίδα επικοινωνίας.')
 
         exit_button = QPushButton('ΕΞΟΔΟΣ')
         exit_button.clicked.connect(self.close_application)
         menu_layout.addWidget(exit_button)
+
         menu_layout.addStretch()  # Add stretch to push menu items to the top
 
         menu_widget = QWidget()
