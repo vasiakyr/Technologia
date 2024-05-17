@@ -17,29 +17,72 @@ class MedicalProfileWidget(QWidget):
         self.layout = QVBoxLayout()
 
         # Create labels and line edits for user details
-        self.name_label = QLabel("Όνομα:", self)
-        self.name_edit = QLineEdit(self)
+        self.first_name_label = QLabel("Όνομα:", self)
+        self.first_name_edit = QLineEdit("Γιάννης", self)
+        self.first_name_edit.setReadOnly(True)
+
+        self.last_name_label = QLabel("Επώνυμο:", self)
+        self.last_name_edit = QLineEdit("Παπαδόπουλος", self)
+        self.last_name_edit.setReadOnly(True)
 
         self.age_label = QLabel("Ηλικία:", self)
-        self.age_edit = QLineEdit(self)
-
-        self.pressure_label = QLabel("Πίεση:", self)
-        self.pressure_edit = QLineEdit(self)
+        self.age_edit = QLineEdit("30", self)
+        self.age_edit.setReadOnly(True)
 
         self.weight_label = QLabel("Βάρος:", self)
-        self.weight_edit = QLineEdit(self)
+        self.weight_edit = QLineEdit("70kg", self)
+        self.weight_edit.setReadOnly(True)
+
+        self.height_label = QLabel("Ύψος:", self)
+        self.height_edit = QLineEdit("180cm", self)
+        self.height_edit.setReadOnly(True)
+
+        self.pressure_label = QLabel("Πίεση:", self)
+        self.pressure_edit = QLineEdit("120/80", self)
+        self.pressure_edit.setReadOnly(True)
+
+        self.blood_group_label = QLabel("Ομάδα Αίματος:", self)
+        self.blood_group_edit = QLineEdit("O+", self)
+        self.blood_group_edit.setReadOnly(True)
+
+        self.eye_color_label = QLabel("Χρώμα Ματιών:", self)
+        self.eye_color_edit = QLineEdit("Καστανά", self)
+        self.eye_color_edit.setReadOnly(True)
 
         # Add widgets to the layout
-        self.layout.addWidget(self.name_label)
-        self.layout.addWidget(self.name_edit)
+        self.layout.addWidget(self.first_name_label)
+        self.layout.addWidget(self.first_name_edit)
+        self.layout.addWidget(self.last_name_label)
+        self.layout.addWidget(self.last_name_edit)
         self.layout.addWidget(self.age_label)
         self.layout.addWidget(self.age_edit)
-        self.layout.addWidget(self.pressure_label)
-        self.layout.addWidget(self.pressure_edit)
         self.layout.addWidget(self.weight_label)
         self.layout.addWidget(self.weight_edit)
+        self.layout.addWidget(self.height_label)
+        self.layout.addWidget(self.height_edit)
+        self.layout.addWidget(self.pressure_label)
+        self.layout.addWidget(self.pressure_edit)
+        self.layout.addWidget(self.blood_group_label)
+        self.layout.addWidget(self.blood_group_edit)
+        self.layout.addWidget(self.eye_color_label)
+        self.layout.addWidget(self.eye_color_edit)
+
+        # Add edit button
+        self.edit_button = QPushButton("ΕΠΕΞΕΡΓΑΣΙΑ ΔΕΔΟΜΕΝΩΝ", self)
+        self.edit_button.clicked.connect(self.enable_editing)
+        self.layout.addWidget(self.edit_button)
 
         self.setLayout(self.layout)
+
+    def enable_editing(self):
+        self.first_name_edit.setReadOnly(False)
+        self.last_name_edit.setReadOnly(False)
+        self.age_edit.setReadOnly(False)
+        self.weight_edit.setReadOnly(False)
+        self.height_edit.setReadOnly(False)
+        self.pressure_edit.setReadOnly(False)
+        self.blood_group_edit.setReadOnly(False)
+        self.eye_color_edit.setReadOnly(False)
 
 class MainWindow(QMainWindow):
     def __init__(self):
