@@ -1,0 +1,201 @@
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QLineEdit, QTextEdit
+from PyQt5.QtCore import Qt
+
+class ContentWidget(QWidget):
+    def __init__(self, content):
+        super().__init__()
+        self.layout = QVBoxLayout()
+        self.label = QLabel(content, self)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.label)
+        self.setLayout(self.layout)
+
+class MedicalProfileWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.layout = QVBoxLayout()
+
+        # Create labels and line edits for user details
+        self.first_name_label = QLabel("Όνομα:", self)
+        self.first_name_edit = QLineEdit("Γιάννης", self)
+        self.first_name_edit.setReadOnly(True)
+
+        self.last_name_label = QLabel("Επώνυμο:", self)
+        self.last_name_edit = QLineEdit("Παπαδόπουλος", self)
+        self.last_name_edit.setReadOnly(True)
+
+        self.age_label = QLabel("Ηλικία:", self)
+        self.age_edit = QLineEdit("30", self)
+        self.age_edit.setReadOnly(True)
+
+        self.weight_label = QLabel("Βάρος:", self)
+        self.weight_edit = QLineEdit("70kg", self)
+        self.weight_edit.setReadOnly(True)
+
+        self.height_label = QLabel("Ύψος:", self)
+        self.height_edit = QLineEdit("180cm", self)
+        self.height_edit.setReadOnly(True)
+
+        self.pressure_label = QLabel("Πίεση:", self)
+        self.pressure_edit = QLineEdit("120/80", self)
+        self.pressure_edit.setReadOnly(True)
+
+        self.blood_group_label = QLabel("Ομάδα Αίματος:", self)
+        self.blood_group_edit = QLineEdit("O+", self)
+        self.blood_group_edit.setReadOnly(True)
+
+        self.eye_color_label = QLabel("Χρώμα Ματιών:", self)
+        self.eye_color_edit = QLineEdit("Καστανά", self)
+        self.eye_color_edit.setReadOnly(True)
+
+        # Add widgets to the layout
+        self.layout.addWidget(self.first_name_label)
+        self.layout.addWidget(self.first_name_edit)
+        self.layout.addWidget(self.last_name_label)
+        self.layout.addWidget(self.last_name_edit)
+        self.layout.addWidget(self.age_label)
+        self.layout.addWidget(self.age_edit)
+        self.layout.addWidget(self.weight_label)
+        self.layout.addWidget(self.weight_edit)
+        self.layout.addWidget(self.height_label)
+        self.layout.addWidget(self.height_edit)
+        self.layout.addWidget(self.pressure_label)
+        self.layout.addWidget(self.pressure_edit)
+        self.layout.addWidget(self.blood_group_label)
+        self.layout.addWidget(self.blood_group_edit)
+        self.layout.addWidget(self.eye_color_label)
+        self.layout.addWidget(self.eye_color_edit)
+
+        # Add edit button
+        self.edit_button = QPushButton("ΕΠΕΞΕΡΓΑΣΙΑ ΔΕΔΟΜΕΝΩΝ", self)
+        self.edit_button.clicked.connect(self.enable_editing)
+        self.layout.addWidget(self.edit_button)
+
+        self.setLayout(self.layout)
+
+    def enable_editing(self):
+        self.first_name_edit.setReadOnly(False)
+        self.last_name_edit.setReadOnly(False)
+        self.age_edit.setReadOnly(False)
+        self.weight_edit.setReadOnly(False)
+        self.height_edit.setReadOnly(False)
+        self.pressure_edit.setReadOnly(False)
+        self.blood_group_edit.setReadOnly(False)
+        self.eye_color_edit.setReadOnly(False)
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle('ΚΑΛΩΣ ΗΡΘΕΣ "ΟΝΟΜΑ ΧΡΗΣΤΗ"')
+
+        # Main layout
+        self.main_layout = QHBoxLayout()
+
+        # Add the menu bar to the main layout
+        self.menu_widget = self.create_menu()
+        self.main_layout.addWidget(self.menu_widget)
+
+        # Main content area
+        self.content_area = QWidget()
+        self.content_layout = QVBoxLayout()
+
+        # Greeting message
+        self.greeting_label = QLabel('Welcome, ΟΝΟΜΑ ΧΡΗΣΤΗ!', self)
+        self.greeting_label.setAlignment(Qt.AlignCenter)
+        self.greeting_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        self.content_layout.addWidget(self.greeting_label)
+
+        # Two boxes at the bottom center
+        self.bottom_layout = QHBoxLayout()
+        self.box1 = QLineEdit(self)
+        self.box2 = QTextEdit(self)
+        self.box1.setMinimumSize(200, 50)  # Adjusted sizes to fit the window
+        self.box2.setMinimumSize(200, 50)
+        self.bottom_layout.addWidget(self.box1)
+        self.bottom_layout.addWidget(self.box2)
+        self.content_layout.addLayout(self.bottom_layout)
+
+        self.content_area.setLayout(self.content_layout)
+        self.main_layout.addWidget(self.content_area)
+
+        main_widget = QWidget()
+        main_widget.setLayout(self.main_layout)
+        self.setCentralWidget(main_widget)
+
+        # Set the fixed size of the window
+        self.setFixedSize(1200, 600)
+
+    def create_menu(self):
+        menu_layout = QVBoxLayout()
+        self.add_menu_button(menu_layout, 'ΑΡΧΙΚΗ', 'Home Page', 'This is the home page content.')
+        self.add_menu_button(menu_layout, 'CHAT', 'Chat Page', 'This is the chat page content.')
+        self.add_menu_button(menu_layout, 'ΒΟΗΘΕΙΑ', 'Help Page', 'This is the help page content.')
+        self.add_menu_button(menu_layout, 'ΙΑΤΡΙΚΟ ΠΡΟΦΙΛ', 'Medical Profile Page', 'This is the medical profile page content.', self.show_medical_profile)
+        self.add_menu_button(menu_layout, 'ΠΟΡΤΟΦΟΛΙ ΥΓΕΙΑΣ', 'Health Wallet Page', 'This is the health wallet page content.')
+        self.add_menu_button(menu_layout, 'ΕΠΙΚΟΙΝΩΝΙΑ', 'Contact Page', 'This is the contact page content.')
+
+        exit_button = QPushButton('ΕΞΟΔΟΣ')
+        exit_button.clicked.connect(self.close_application)
+        menu_layout.addWidget(exit_button)
+        menu_layout.addStretch()  # Add stretch to push menu items to the top
+
+        menu_widget = QWidget()
+        menu_widget.setLayout(menu_layout)
+        menu_widget.setStyleSheet("background-color: #CDEAC0;")
+        menu_widget.setMinimumWidth(200)  # Fixed width for menu
+        return menu_widget
+
+    def add_menu_button(self, menu_layout, text, window_title, window_content, custom_function=None):
+        button = QPushButton(text, self)
+        if custom_function:
+            button.clicked.connect(custom_function)
+        else:
+            button.clicked.connect(lambda _, t=window_title, c=window_content: self.show_content(t, c))
+        menu_layout.addWidget(button)
+
+    def show_home_page(self):
+        self.clear_content_area()
+
+        self.greeting_label = QLabel('Welcome, ΟΝΟΜΑ ΧΡΗΣΤΗ!', self)
+        self.greeting_label.setAlignment(Qt.AlignCenter)
+        self.greeting_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        self.content_layout.addWidget(self.greeting_label)
+
+        self.bottom_layout = QHBoxLayout()
+        self.box1 = QLineEdit(self)
+        self.box2 = QTextEdit(self)
+        self.box1.setMinimumSize(200, 50)  # Adjusted sizes to fit the window
+        self.box2.setMinimumSize(200, 50)
+        self.bottom_layout.addWidget(self.box1)
+        self.bottom_layout.addWidget(self.box2)
+        self.content_layout.addLayout(self.bottom_layout)
+
+        self.content_area.setLayout(self.content_layout)
+        self.main_layout.addWidget(self.content_area)
+
+    def show_content(self, title, content):
+        self.clear_content_area()
+        self.content_area = ContentWidget(content)
+        self.main_layout.addWidget(self.content_area)
+
+    def show_medical_profile(self):
+        self.clear_content_area()
+        self.content_area = MedicalProfileWidget()
+        self.main_layout.addWidget(self.content_area)
+
+    def clear_content_area(self):
+        self.content_area.setParent(None)
+        self.content_layout = QVBoxLayout()
+        self.content_area = QWidget()
+        self.content_area.setLayout(self.content_layout)
+
+    def close_application(self):
+        QApplication.instance().quit()
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
