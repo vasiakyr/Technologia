@@ -1,0 +1,392 @@
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QLineEdit, QTextEdit, QComboBox, QCheckBox, QRadioButton, QButtonGroup, QScrollArea, QFrame, QGraphicsOpacityEffect
+from PyQt5.QtCore import Qt
+
+
+class ContentWidget(QWidget):
+    def __init__(self, content):
+        super().__init__()
+        self.layout = QVBoxLayout()
+        self.label = QLabel(content, self)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.label)
+        self.setLayout(self.layout)
+
+
+class HelpWidget(QWidget):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.layout = QVBoxLayout()
+
+        self.button1 = QPushButton("ΧΡΕΙΑΖΟΜΑΙ ΦΑΡΜΑΚΑ")
+        self.button2 = QPushButton("ΨΑΧΝΩ ΓΙΑΤΡΟ")
+        self.button3 = QPushButton("ΘΕΛΩ ΝΑ ΔΩΣΩ ΑΙΜΑ")
+
+        self.layout.addWidget(self.button1)
+        self.layout.addWidget(self.button2)
+        self.layout.addWidget(self.button3)
+
+        self.button1.clicked.connect(parent.show_medicine_options)
+        self.button2.clicked.connect(parent.show_doctor_search)
+        self.button3.clicked.connect(lambda: parent.show_content("Θέλω Να Δώσω Αίμα", "Περιεχόμενο για Θέλω Να Δώσω Αίμα"))
+
+        self.setLayout(self.layout)
+
+
+class MedicineWidget(QWidget):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.layout = QVBoxLayout()
+
+        # Συμπτώματα
+        self.symptom_layout = QHBoxLayout()
+        self.symptom_label = QLabel("ΣΥΜΠΤΩΜΑΤΑ:", self)
+        self.symptom_input = QLineEdit(self)
+        self.symptom_list = QComboBox(self)
+        self.symptom_list.addItems(["Πυρετός", "Βήχας", "Πονοκέφαλος"])  # Προσθήκη λίστας συμπτωμάτων
+        self.symptom_layout.addWidget(self.symptom_label)
+        self.symptom_layout.addWidget(self.symptom_input)
+        self.symptom_layout.addWidget(self.symptom_list)
+
+        # Απαιτείται Συνταγή
+        self.prescription_layout = QHBoxLayout()
+        self.prescription_label = QLabel("ΑΠΑΙΤΕΙΤΑΙ ΣΥΝΤΑΓΗ;", self)
+        self.prescription_yes = QRadioButton("ΝΑΙ", self)
+        self.prescription_no = QRadioButton("ΟΧΙ", self)
+        self.prescription_group = QButtonGroup(self)
+        self.prescription_group.addButton(self.prescription_yes)
+        self.prescription_group.addButton(self.prescription_no)
+        self.prescription_layout.addWidget(self.prescription_label)
+        self.prescription_layout.addWidget(self.prescription_yes)
+        self.prescription_layout.addWidget(self.prescription_no)
+
+        # Search Button
+        self.search_button = QPushButton("Search", self)
+        self.search_button.clicked.connect(self.perform_search)
+
+        self.layout.addLayout(self.symptom_layout)
+        self.layout.addLayout(self.prescription_layout)
+        self.layout.addWidget(self.search_button)
+        self.layout.addStretch()
+
+        self.setLayout(self.layout)
+
+    def perform_search(self):
+        symptom = self.symptom_input.text()
+        requires_prescription = self.prescription_yes.isChecked()
+        result = f"Αναζήτηση για: {symptom}, Απαιτείται Συνταγή: {'ΝΑΙ' if requires_prescription else 'ΟΧΙ'}"
+        self.parent().show_content("Αποτελέσματα Αναζήτησης", result)
+
+class ReviewWidget(QWidget):
+    def __init__(self, doctor, parent):
+        super().__init__(parent)
+        self.doctor = doctor
+        self.layout = QVBoxLayout()
+
+        # Τίτλος
+        self.title_label = QLabel(f"Υποβολή Αξιολόγησης για {doctor['name']}", self)
+        self.layout.addWidget(self.title_label)
+
+        # Πεδίο Αξιολόγησης
+        self.review_text = QTextEdit(self)
+        self.review_text.setPlaceholderText("Γράψτε την αξιολόγησή σας εδώ...")
+        self.layout.addWidget(self.review_text)
+
+        # Επιλογή Αστεριών
+        self.rating_label = QLabel("Βαθμολογία:", self)
+        self.layout.addWidget(self.rating_label)
+        self.star_layout = QHBoxLayout()
+        self.star_buttons = []
+        for i in range(5):
+            star_button = QRadioButton(f"{i + 1} Αστέρια", self)
+            self.star_buttons.append(star_button)
+            self.star_layout.addWidget(star_button)
+        self.layout.addLayout(self.star_layout)
+
+        # Κουμπί Υποβολής
+        self.submit_button = QPushButton("Υποβολή", self)
+        self.submit_button.clicked.connect(self.submit_review)
+        self.layout.addWidget(self.submit_button)
+
+        self.setLayout(self.layout)
+
+    def submit_review(self):
+        review_text = self.review_text.toPlainText()
+        rating = next((i + 1 for i, btn in enumerate(self.star_buttons) if btn.isChecked()), None)
+        if review_text and rating:
+            # Προσθήκη αξιολόγησης σε μια λίστα αξιολογήσεων (θα μπορούσε να είναι βάση δεδομένων σε πραγματική εφαρμογή)
+            self.parent().add_review(self.doctor, review_text, rating)
+            self.parent().show_message("Ευχαριστούμε για την αξιολόγησή σας!")
+        else:
+            self.parent().show_message("Παρακαλώ συμπληρώστε την αξιολόγηση και επιλέξτε βαθμολογία.")
+
+class DoctorSearchWidget(QWidget):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.parent = parent
+        self.layout = QVBoxLayout()
+
+        # Πλαίσιο: ΤΙ ΨΑΧΝΕΤΕ;
+        self.search_label = QLabel("ΤΙ ΨΑΧΝΕΤΕ;", self)
+        self.search_label.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.search_label)
+
+        # Πλαίσιο: ΣΕ ΤΙ ΓΙΑΤΡΟ ΝΑ ΑΠΕΥΘΥΝΘΩ
+        self.doctor_label = QLabel("ΣΕ ΤΙ ΓΙΑΤΡΟ ΝΑ ΑΠΕΥΘΥΝΘΩ", self)
+        self.doctor_label.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.doctor_label)
+
+        # Ειδικότητα
+        self.specialty_label = QLabel("Ειδικότητα:", self)
+        self.specialty_combo = QComboBox(self)
+        self.specialty_combo.addItems(["Γενικός Ιατρός", "Παιδίατρος", "Οδοντίατρος"])
+        self.layout.addWidget(self.specialty_label)
+        self.layout.addWidget(self.specialty_combo)
+
+        # Περιοχή
+        self.location_label = QLabel("Περιοχή:", self)
+        self.location_combo = QComboBox(self)
+        self.location_combo.addItems(["Αθήνα", "Θεσσαλονίκη", "Πάτρα"])
+        self.layout.addWidget(self.location_label)
+        self.layout.addWidget(self.location_combo)
+
+        # Κατ' οίκον επίσκεψη
+        self.home_visit_label = QLabel("Κατ' οίκον επίσκεψη:", self)
+        self.home_visit_yes = QRadioButton("ΝΑΙ", self)
+        self.home_visit_no = QRadioButton("ΟΧΙ", self)
+        self.home_visit_group = QButtonGroup(self)
+        self.home_visit_group.addButton(self.home_visit_yes)
+        self.home_visit_group.addButton(self.home_visit_no)
+        self.home_visit_layout = QHBoxLayout()
+        self.home_visit_layout.addWidget(self.home_visit_yes)
+        self.home_visit_layout.addWidget(self.home_visit_no)
+        self.layout.addWidget(self.home_visit_label)
+        self.layout.addLayout(self.home_visit_layout)
+
+        # Search Button
+        self.search_button = QPushButton("Search", self)
+        self.search_button.clicked.connect(self.perform_search)
+        self.layout.addWidget(self.search_button)
+
+        self.setLayout(self.layout)
+
+    def perform_search(self):
+        specialty = self.specialty_combo.currentText()
+        location = self.location_combo.currentText()
+        home_visit = self.home_visit_yes.isChecked()
+        # Dummy data for doctors
+        doctors = [
+            {"name": "Dr. John Doe", "specialty": "Γενικός Ιατρός", "rating": "★★★★★", "location": "Αθήνα", "address": "Οδός Παράδειγμα 1", "availability": "Δευτέρα-Παρασκευή"},
+            {"name": "Dr. Jane Smith", "specialty": "Παιδίατρος", "rating": "★★★★☆", "location": "Θεσσαλονίκη", "address": "Οδός Παράδειγμα 2", "availability": "Τρίτη-Σάββατο"},
+            {"name": "Dr. Alice Johnson", "specialty": "Οδοντίατρος", "rating": "★★★☆☆", "location": "Πάτρα", "address": "Οδός Παράδειγμα 3", "availability": "Δευτέρα-Τετάρτη"},
+        ]
+        self.parent.show_doctor_results(doctors)
+
+
+class DoctorDetailsWidget(QWidget):
+    def __init__(self, doctor, parent):
+        super().__init__(parent)
+        self.layout = QVBoxLayout()
+        self.setWindowFlag(Qt.FramelessWindowHint)  # Remove window frame
+        self.setStyleSheet("background-color: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 20px;")
+
+        # Doctor details
+        self.name_label = QLabel(f"Όνομα: {doctor['name']}", self)
+        self.specialty_label = QLabel(f"Ειδικότητα: {doctor['specialty']}", self)
+        self.location_label = QLabel(f"Περιοχή: {doctor['location']}", self)
+        self.address_label = QLabel(f"Διεύθυνση Γραφείου: {doctor['address']}", self)
+        self.availability_label = QLabel(f"Διαθεσιμότητα Ραντεβού: {doctor['availability']}", self)
+        self.rating_label = QLabel(f"Αξιολογήσεις: {doctor['rating']}", self)
+
+        self.layout.addWidget(self.name_label)
+        self.layout.addWidget(self.specialty_label)
+        self.layout.addWidget(self.location_label)
+        self.layout.addWidget(self.address_label)
+        self.layout.addWidget(self.availability_label)
+        self.layout.addWidget(self.rating_label)
+
+        # Interaction buttons
+        self.button_layout = QHBoxLayout()
+        self.phone_button = QPushButton("Τηλέφωνο", self)
+        self.chat_button = QPushButton("Τσατ", self)
+        self.appointment_button = QPushButton("Ραντεβού", self)
+        self.button_layout.addWidget(self.phone_button)
+        self.button_layout.addWidget(self.chat_button)
+        self.button_layout.addWidget(self.appointment_button)
+        self.layout.addLayout(self.button_layout)
+
+        self.setLayout(self.layout)
+
+
+class DoctorResultsWidget(QWidget):
+    def __init__(self, doctors, parent):
+        super().__init__(parent)
+        self.parent = parent
+        self.layout = QVBoxLayout()
+
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_content = QWidget(self.scroll_area)
+        self.scroll_layout = QVBoxLayout(self.scroll_content)
+
+        for doctor in doctors:
+            doctor_frame = QFrame(self)
+            doctor_frame.setFrameShape(QFrame.Box)
+            doctor_frame.setLineWidth(2)
+            doctor_layout = QVBoxLayout(doctor_frame)
+
+            doctor_name_label = QLabel(f"Όνομα: {doctor['name']}", self)
+            doctor_specialty_label = QLabel(f"Ειδικότητα: {doctor['specialty']}", self)
+            doctor_rating_label = QLabel(f"Αξιολογήσεις: {doctor['rating']}", self)
+
+            select_button = QPushButton("Επιλογή", self)
+            select_button.clicked.connect(lambda checked, d=doctor: self.parent.show_doctor_details(d))
+
+            doctor_layout.addWidget(doctor_name_label)
+            doctor_layout.addWidget(doctor_specialty_label)
+            doctor_layout.addWidget(doctor_rating_label)
+            doctor_layout.addWidget(select_button)
+
+            self.scroll_layout.addWidget(doctor_frame)
+
+        self.scroll_content.setLayout(self.scroll_layout)
+        self.scroll_area.setWidget(self.scroll_content)
+        self.layout.addWidget(self.scroll_area)
+
+        self.setLayout(self.layout)
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Health Application")
+        self.setGeometry(100, 100, 1200, 600)
+        self.content_area = None
+
+        self.main_layout = QHBoxLayout()
+        self.menu_widget = self.create_menu()
+        self.main_layout.addWidget(self.menu_widget)
+
+        self.content_area = QWidget()
+        self.content_layout = QVBoxLayout()
+
+        self.greeting_label = QLabel('Welcome, ΟΝΟΜΑ ΧΡΗΣΤΗ!', self)
+        self.greeting_label.setAlignment(Qt.AlignCenter)
+        self.greeting_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        self.content_layout.addWidget(self.greeting_label)
+
+        self.bottom_layout = QHBoxLayout()
+        self.box1 = QLineEdit(self)
+        self.box2 = QTextEdit(self)
+        self.box1.setMinimumSize(200, 50)
+        self.box2.setMinimumSize(200, 50)
+        self.bottom_layout.addWidget(self.box1)
+        self.bottom_layout.addWidget(self.box2)
+        self.content_layout.addLayout(self.bottom_layout)
+
+        self.content_area.setLayout(self.content_layout)
+        self.main_layout.addWidget(self.content_area)
+
+        main_widget = QWidget()
+        main_widget.setLayout(self.main_layout)
+        self.setCentralWidget(main_widget)
+
+        self.setFixedSize(1200, 600)
+
+    def create_menu(self):
+        menu_layout = QVBoxLayout()
+        self.add_menu_button(menu_layout, 'ΑΡΧΙΚΗ', 'Home Page', 'This is the home page content.')
+        self.add_menu_button(menu_layout, 'CHAT', 'Chat Page', 'This is the chat page content.')
+        self.add_menu_button(menu_layout, 'ΒΟΗΘΕΙΑ', 'Help Page', 'This is the help page content.')
+        self.add_menu_button(menu_layout, 'ΙΑΤΡΙΚΟ ΠΡΟΦΙΛ', 'Medical Profile Page', 'This is the medical profile page content.')
+        self.add_menu_button(menu_layout, 'ΠΟΡΤΟΦΟΛΙ ΥΓΕΙΑΣ', 'Health Wallet Page', 'This is the health wallet page content.')
+        self.add_menu_button(menu_layout, 'ΕΠΙΚΟΙΝΩΝΙΑ', 'Contact Page', 'This is the contact page content.')
+
+        exit_button = QPushButton('ΕΞΟΔΟΣ')
+        exit_button.clicked.connect(self.close_application)
+        menu_layout.addWidget(exit_button)
+        menu_layout.addStretch()  # Add stretch to push menu items to the top
+
+        menu_widget = QWidget()
+        menu_widget.setLayout(menu_layout)
+        menu_widget.setStyleSheet("background-color: #CDEAC0;")
+        menu_widget.setMinimumWidth(self.frameGeometry().width() // 5)
+        return menu_widget
+
+    def add_menu_button(self, menu_layout, text, window_title=None, window_content=None):
+        button = QPushButton(text, self)
+        if text == 'ΑΡΧΙΚΗ':
+            button.clicked.connect(self.show_home_page)
+        elif text == 'ΒΟΗΘΕΙΑ':
+            button.clicked.connect(self.show_help_page)
+        else:
+            button.clicked.connect(lambda: self.show_content(window_title, window_content))
+        menu_layout.addWidget(button)
+
+    def show_home_page(self):
+        self.clear_content()
+        self.content_area = QWidget()
+        self.content_layout = QVBoxLayout()
+
+        self.greeting_label = QLabel('Welcome, ΟΝΟΜΑ ΧΡΗΣΤΗ!', self)
+        self.greeting_label.setAlignment(Qt.AlignCenter)
+        self.greeting_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        self.content_layout.addWidget(self.greeting_label)
+
+        self.bottom_layout = QHBoxLayout()
+        self.box1 = QLineEdit(self)
+        self.box2 = QTextEdit(self)
+        self.box1.setMinimumSize(200, 50)
+        self.box2.setMinimumSize(200, 50)
+        self.bottom_layout.addWidget(self.box1)
+        self.bottom_layout.addWidget(self.box2)
+        self.content_layout.addLayout(self.bottom_layout)
+
+        self.content_area.setLayout(self.content_layout)
+        self.main_layout.addWidget(self.content_area)
+
+    def show_help_page(self):
+        self.clear_content()
+        self.content_area = HelpWidget(self)
+        self.main_layout.addWidget(self.content_area)
+
+    def show_medicine_options(self):
+        self.clear_content()
+        self.content_area = MedicineWidget(self)
+        self.main_layout.addWidget(self.content_area)
+
+    def show_doctor_search(self):
+        self.clear_content()
+        self.content_area = DoctorSearchWidget(self)
+        self.main_layout.addWidget(self.content_area)
+
+    def show_doctor_results(self, doctors):
+        self.clear_content()
+        self.content_area = DoctorResultsWidget(doctors, self)
+        self.main_layout.addWidget(self.content_area)
+
+    def show_doctor_details(self, doctor):
+        self.clear_content()
+        self.content_area = DoctorDetailsWidget(doctor, self)
+        self.main_layout.addWidget(self.content_area)
+
+    def show_content(self, title, content):
+        self.clear_content()
+        self.content_area = ContentWidget(content)
+        self.main_layout.addWidget(self.content_area)
+
+    def clear_content(self):
+        if self.content_area:
+            self.main_layout.removeWidget(self.content_area)
+            self.content_area.deleteLater()
+            self.content_area = None
+
+    def close_application(self):
+        QApplication.instance().quit()
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    main_window = MainWindow()
+    main_window.show()
+    sys.exit(app.exec_())
