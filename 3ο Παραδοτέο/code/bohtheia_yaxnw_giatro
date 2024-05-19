@@ -1,6 +1,8 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QLineEdit, QTextEdit, QComboBox, QCheckBox, QRadioButton, QButtonGroup, QScrollArea, QFrame, QGraphicsOpacityEffect
 from PyQt5.QtCore import Qt
+from PyQt5.QtCore import pyqtSignal
+
 
 
 class ContentWidget(QWidget):
@@ -34,6 +36,9 @@ class HelpWidget(QWidget):
 
 
 class MedicineWidget(QWidget):
+    # Define signal for when a medicine is selected
+    medicine_selected = pyqtSignal(list)
+
     def __init__(self, parent):
         super().__init__(parent)
         self.layout = QVBoxLayout()
@@ -72,10 +77,68 @@ class MedicineWidget(QWidget):
         self.setLayout(self.layout)
 
     def perform_search(self):
-        symptom = self.symptom_input.text()
-        requires_prescription = self.prescription_yes.isChecked()
-        result = f"Αναζήτηση για: {symptom}, Απαιτείται Συνταγή: {'ΝΑΙ' if requires_prescription else 'ΟΧΙ'}"
-        self.parent().show_content("Αποτελέσματα Αναζήτησης", result)
+        # Πάρτε τα συμπτώματα που έχει εισάγει ο χρήστης
+        selected_symptom = self.symptom_list.currentText()
+        user_input_symptom = self.symptom_input.text()
+
+        # Προετοιμάστε τα συμπτώματα για αναζήτηση (συμπτώματα + τυχόν επιπρόσθετα συμπτώματα που έχει εισάγει ο χρήστης)
+        symptoms = [selected_symptom]
+        if user_input_symptom:
+            symptoms.append(user_input_symptom)
+
+        # Πραγματοποιήστε την πραγματική αναζήτηση φαρμάκων εδώ, χρησιμοποιώντας τα συμπτώματα
+        # Για τώρα, θα απλώς εκπέμψουμε ένα προκαθορισμένο λίστα φαρμάκων ως παράδειγμα
+        medicines = [
+            {"name": "Παρακεταμόλη", "description": "Για την ελάφρυνση του πυρετού και της πονοκέφαλου",
+             "prescription_required": False},
+            {"name": "Αμοξικιλλίνη", "description": "Αντιβιοτικό για τη θεραπεία βακτηριακών λοιμώξεων",
+             "prescription_required": True},
+            {"name": "Καταλληλόλ", "description": "Για την αντιμετώπιση του βήχα", "prescription_required": False},
+        ]
+
+        # Εκπομπή των αποτελεσμάτων χρησιμοποιώντας το σήμα medicine_selected
+        self.medicine_selected.emit(medicines)
+
+class MedicineResultsWidget(QWidget):
+    def __init__(self, medicines, parent=None):
+        super().__init__(parent)
+        self.layout = QVBoxLayout()
+
+        for medicine in medicines:
+            # Δημιουργία πλαισίου για κάθε φάρμακο
+            medicine_frame = QFrame(self)
+            medicine_frame.setFrameShape(QFrame.Box)
+            medicine_frame.setLineWidth(2)
+            medicine_layout = QVBoxLayout(medicine_frame)
+
+            # Ετικέτα για το όνομα του φαρμάκου
+            medicine_name_label = QLabel(f"{medicine['name']}", self)
+            medicine_layout.addWidget(medicine_name_label)
+
+            # Ετικέτα για την περιγραφή του φαρμάκου
+            medicine_description_label = QLabel(f"{medicine['description']}", self)
+            medicine_layout.addWidget(medicine_description_label)
+
+            # Ετικέτα για την απαίτηση συνταγής
+            prescription_required_label = QLabel(f"Απαιτεί συνταγή: {'Ναι' if medicine['prescription_required'] else 'Όχι'}", self)
+            medicine_layout.addWidget(prescription_required_label)
+
+            # Κουμπί για εμφάνιση περαιτέρω πληροφοριών
+            select_button = QPushButton("Επιλογή", self)
+            select_button.clicked.connect(lambda checked, med=medicine: self.show_medicine_details(med))
+            medicine_layout.addWidget(select_button)
+
+            # Προσθήκη του πλαισίου στην κύρια διάταξη
+            self.layout.addWidget(medicine_frame)
+
+
+        self.setLayout(self.layout)
+
+    def show_medicine_details(self, medicine):
+        # Εδώ μπορείτε να υλοποιήσετε τη λειτουργία που θέλετε όταν γίνει κλικ στο φάρμακο
+        print("Εμφάνιση περαιτέρω πληροφοριών για το φάρμακο:", medicine['name'])
+
+
 
 class ReviewWidget(QWidget):
     def __init__(self, doctor, parent):
@@ -208,8 +271,14 @@ class DoctorDetailsWidget(QWidget):
         # Interaction buttons
         self.button_layout = QHBoxLayout()
         self.phone_button = QPushButton("Τηλέφωνο", self)
+        self.phone_button.setCheckable(True)  # Κάνει το κουμπί επιλέξιμο
+        self.phone_button.setChecked(False)  # Το κουμπί είναι απεπιλεγμένο αρχικά
         self.chat_button = QPushButton("Τσατ", self)
+        self.chat_button.setCheckable(True)  # Κάνει το κουμπί επιλέξιμο
+        self.chat_button.setChecked(False)  # Το κουμπί είναι απεπιλεγμένο αρχικά
         self.appointment_button = QPushButton("Ραντεβού", self)
+        self.appointment_button.setCheckable(True)  # Κάνει το κουμπί επιλέξιμο
+        self.appointment_button.setChecked(False)  # Το κουμπί είναι απεπιλεγμένο αρχικά
         self.button_layout.addWidget(self.phone_button)
         self.button_layout.addWidget(self.chat_button)
         self.button_layout.addWidget(self.appointment_button)
@@ -354,6 +423,22 @@ class MainWindow(QMainWindow):
         self.clear_content()
         self.content_area = MedicineWidget(self)
         self.main_layout.addWidget(self.content_area)
+        self.connect_medicine_widget(self.content_area)
+
+    def show_medicine_results(self, medicines):
+        self.clear_content()
+        self.content_area = MedicineWidget(medicines, self)
+        # Connect the signal to show medicine details
+        self.content_area.medicine_selected.connect(self.show_medicine_details)
+        self.main_layout.addWidget(self.content_area)
+
+    def connect_medicine_widget(self, widget):
+        widget.medicine_selected.connect(self.show_medicine_results)
+
+    def show_medicine_details(self, medicine):
+        self.clear_content()
+        self.content_area = MedicineWidget(medicine, self)
+        self.main_layout.addWidget(self.content_area)
 
     def show_doctor_search(self):
         self.clear_content()
@@ -383,6 +468,11 @@ class MainWindow(QMainWindow):
 
     def close_application(self):
         QApplication.instance().quit()
+
+    def show_medicine_results(self, medicines):
+        self.clear_content()
+        self.content_area = MedicineResultsWidget(medicines, self)
+        self.main_layout.addWidget(self.content_area)
 
 
 if __name__ == "__main__":
