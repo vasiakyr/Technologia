@@ -1,6 +1,7 @@
 import sys
+import os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QLineEdit, QTextEdit, QTabWidget, QMenuBar
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import Qt
 
 class ContentWidget(QWidget):
@@ -16,10 +17,15 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle('ΚΑΛΩΣ ΗΡΘΕΣ "ΟΝΟΜΑ ΧΡΗΣΤΗ"')
+        self.setWindowTitle('ΚΑΛΩΣ ΗΡΘΕΣ ΓΙΑΤΡΕ "ΟΝΟΜΑ ΧΡΗΣΤΗ"')
 
         # Set the application icon
-        self.setWindowIcon(QIcon('app_icon.png'))  # Make sure app_icon.png is in the same directory
+        icon_path = os.path.abspath('medlinkicon.jpg')
+        if not os.path.exists(icon_path):
+            print(f"Icon file not found: {icon_path}")
+        else:
+            print(f"Icon file found: {icon_path}")
+        self.setWindowIcon(QIcon(icon_path))  # Make sure medlinkicon.jpg is in the same directory
 
         # Set the size of the window
         self.setFixedSize(1200, 600)
@@ -95,6 +101,17 @@ class MainWindow(QMainWindow):
         greeting_label.setAlignment(Qt.AlignCenter)
         greeting_label.setStyleSheet("font-size: 20px; font-weight: bold;")
         home_layout.addWidget(greeting_label)
+
+        # Add image to home page
+        image_label = QLabel(self)
+        pixmap = QPixmap('medlinkicon.jpg')  # Replace 'medlinkicon.jpg' with your image file name
+        if pixmap.isNull():
+            print("Failed to load image")
+        else:
+            scaled_pixmap = pixmap.scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)  # Adjust the size as needed
+            image_label.setPixmap(scaled_pixmap)
+            image_label.setAlignment(Qt.AlignCenter)  # Center the image if desired
+        home_layout.addWidget(image_label)
 
         bottom_layout = QHBoxLayout()
 
