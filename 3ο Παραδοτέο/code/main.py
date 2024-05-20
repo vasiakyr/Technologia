@@ -1,7 +1,9 @@
 import sys
 import mysql.connector
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QLineEdit, QTextEdit
-from PyQt5.QtCore import Qt
+from mysql.connector import Error
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QLineEdit, QTextEdit, QTabWidget, QMenuBar, QMessageBox, QFrame)
+from PyQt5.QtGui import QIcon, QPalette, QColor
+from PyQt5.QtCore import Qt, pyqtSlot
 
 class ContentWidget(QWidget):
     def __init__(self, content):
@@ -13,141 +15,255 @@ class ContentWidget(QWidget):
         self.setLayout(self.layout)
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, user_data):
         super().__init__()
 
-        self.setWindowTitle('ΚΑΛΩΣ ΗΡΘΕΣ "ΟΝΟΜΑ ΧΡΗΣΤΗ"')
+        self.setWindowTitle(f'ΚΑΛΩΣ ΗΡΘΕΣ "{user_data["name"]}"')
 
-        # Main layout
+        # Set the application icon
+        self.setWindowIcon(QIcon('app_icon.png'))  # Make sure app_icon.png is in the same directory
+
+        # Set the size of the window
+        self.setFixedSize(1200, 600)
+
+        # Create the main layout
         self.main_layout = QHBoxLayout()
 
-        # Add the menu bar to the main layout
+        # Add the menu widget to the main layout
         self.menu_widget = self.create_menu()
         self.main_layout.addWidget(self.menu_widget)
 
-        # Main content area
-        self.content_area = QWidget()
-        self.content_layout = QVBoxLayout()
+        # Create right side with tabs
+        self.right_widget = QTabWidget()
+        self.right_widget.tabBar().setObjectName("mainTab")
 
-        # Greeting message
-        self.greeting_label = QLabel('Welcome, ΟΝΟΜΑ ΧΡΗΣΤΗ!', self)
-        self.greeting_label.setAlignment(Qt.AlignCenter)
-        self.greeting_label.setStyleSheet("font-size: 20px; font-weight: bold;")
-        self.content_layout.addWidget(self.greeting_label)
+        self.tab1 = self.create_home_page(user_data)
+        self.tab2 = ContentWidget("This is the chat page content.")
+        self.tab3 = ContentWidget("This is the help page content.")
+        self.tab4 = ContentWidget("This is the medical profile page content.")
+        self.tab5 = ContentWidget("This is the health wallet page content.")
+        self.tab6 = ContentWidget("This is the contact page content.")
 
-        # Two boxes at the bottom center
-        self.bottom_layout = QHBoxLayout()
-        self.box1 = QLineEdit(self)
-        self.box2 = QTextEdit(self)
-        self.box1.setMinimumSize(1500, 800)
-        self.box2.setMinimumSize(1500, 800)
-        self.bottom_layout.addWidget(self.box1)
-        self.bottom_layout.addWidget(self.box2)
-        self.content_layout.addLayout(self.bottom_layout)
+        self.right_widget.addTab(self.tab1, '')
+        self.right_widget.addTab(self.tab2, '')
+        self.right_widget.addTab(self.tab3, '')
+        self.right_widget.addTab(self.tab4, '')
+        self.right_widget.addTab(self.tab5, '')
+        self.right_widget.addTab(self.tab6, '')
 
-        self.content_area.setLayout(self.content_layout)
-        self.main_layout.addWidget(self.content_area)
+        self.right_widget.setCurrentIndex(0)
+        self.right_widget.setStyleSheet('''QTabBar::tab{width: 0; height: 0; margin: 0; padding: 0; border: none;}''')
+
+        self.main_layout.addWidget(self.right_widget)
+        self.main_layout.setStretch(0, 1)
+        self.main_layout.setStretch(1, 4)
 
         main_widget = QWidget()
         main_widget.setLayout(self.main_layout)
         self.setCentralWidget(main_widget)
 
-        # Set the fixed size of the window
-        self.setFixedSize(1200, 600)
-
-        # Initialize MySQL connection
-        self.db_connection = None
-        self.connect_to_database()
+        # Add the menu bar with About action
+        self.create_menubar()
 
     def create_menu(self):
         menu_layout = QVBoxLayout()
-        self.add_menu_button(menu_layout, 'ΑΡΧΙΚΗ', 'Home Page', 'This is the home page content.')
-        self.add_menu_button(menu_layout, 'CHAT', 'Chat Page', 'This is the chat page content.')
-        self.add_menu_button(menu_layout, 'ΒΟΗΘΕΙΑ', 'Help Page', 'This is the help page content.')
-        self.add_menu_button(menu_layout, 'ΙΑΤΡΙΚΟ ΠΡΟΦΙΛ', 'Medical Profile Page', 'This is the medical profile page content.')
-        self.add_menu_button(menu_layout, 'ΠΟΡΤΟΦΟΛΙ ΥΓΕΙΑΣ', 'Health Wallet Page', 'This is the health wallet page content.')
-        self.add_menu_button(menu_layout, 'ΕΠΙΚΟΙΝΩΝΙΑ', 'Contact Page', 'This is the contact page content.')
+        self.add_menu_button(menu_layout, 'ΑΡΧΙΚΗ', 0)
+        self.add_menu_button(menu_layout, 'CHAT', 1)
+        self.add_menu_button(menu_layout, 'ΒΟΗΘΕΙΑ', 2)
+        self.add_menu_button(menu_layout, 'ΙΑΤΡΙΚΟ ΠΡΟΦΙΛ', 3)
+        self.add_menu_button(menu_layout, 'ΠΟΡΤΟΦΟΛΙ ΥΓΕΙΑΣ', 4)
+        self.add_menu_button(menu_layout, 'ΕΠΙΚΟΙΝΩΝΙΑ', 5)
 
         exit_button = QPushButton('ΕΞΟΔΟΣ')
-        exit_button.clicked.connect(self.close_application)
+        exit_button.clicked.connect(self.logout)
         menu_layout.addWidget(exit_button)
-        menu_layout.addStretch()  # Add stretch to push menu items to the top
+        menu_layout.addStretch()
 
         menu_widget = QWidget()
         menu_widget.setLayout(menu_layout)
         menu_widget.setStyleSheet("background-color: #CDEAC0;")
-        menu_widget.setMinimumWidth(self.frameGeometry().width() // 5)
         return menu_widget
 
-    def add_menu_button(self, menu_layout, text, window_title, window_content):
+    def add_menu_button(self, menu_layout, text, index):
         button = QPushButton(text, self)
-        if text == 'ΑΡΧΙΚΗ':
-            button.clicked.connect(self.show_home_page)
-        else:
-            button.clicked.connect(lambda: self.show_content(window_title, window_content))
+        button.clicked.connect(lambda: self.right_widget.setCurrentIndex(index))
         menu_layout.addWidget(button)
 
-    def show_home_page(self):
-        # Clear the current content
-        self.content_area.setParent(None)
+    def create_home_page(self, user_data):
+        home_widget = QWidget()
+        home_layout = QVBoxLayout()
 
-        # Recreate the main content area
-        self.content_area = QWidget()
-        self.content_layout = QVBoxLayout()
+        greeting_label = QLabel(f'Welcome, {user_data["name"]}!', self)
+        greeting_label.setAlignment(Qt.AlignCenter)
+        greeting_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        home_layout.addWidget(greeting_label)
 
-        self.greeting_label = QLabel('Welcome, ΟΝΟΜΑ ΧΡΗΣΤΗ!', self)
-        self.greeting_label.setAlignment(Qt.AlignCenter)
-        self.greeting_label.setStyleSheet("font-size: 20px; font-weight: bold;")
-        self.content_layout.addWidget(self.greeting_label)
+        bottom_layout = QHBoxLayout()
 
-        self.bottom_layout = QHBoxLayout()
-        self.box1 = QLineEdit(self)
-        self.box2 = QTextEdit(self)
-        self.box1.setMinimumSize(200, 50)
-        self.box2.setMinimumSize(200, 50)
-        self.bottom_layout.addWidget(self.box1)
-        self.bottom_layout.addWidget(self.box2)
-        self.content_layout.addLayout(self.bottom_layout)
+        left_box = QVBoxLayout()
+        left_label = QLabel('Προσωπικά Στοιχεία', self)
+        left_label.setAlignment(Qt.AlignCenter)
+        left_label.setStyleSheet("font-size: 16px; font-weight: bold;")
+        left_box.addWidget(left_label)
 
-        self.content_area.setLayout(self.content_layout)
-        self.main_layout.addWidget(self.content_area)
+        self.name_label = QLabel('Ονοματεπώνυμο:', self)
+        self.name_edit = QLineEdit(self)
+        self.name_edit.setReadOnly(True)
+        self.name_edit.setText(user_data["name"])
+        left_box.addWidget(self.name_label)
+        left_box.addWidget(self.name_edit)
 
-    def show_content(self, title, content):
-        # Clear the current content
-        self.content_area.setParent(None)
+        self.email_label = QLabel('email:', self)
+        self.email_edit = QLineEdit(self)
+        self.email_edit.setReadOnly(True)
+        self.email_edit.setText(user_data["email"])
+        left_box.addWidget(self.email_label)
+        left_box.addWidget(self.email_edit)
 
-        # Create new content area
-        self.content_area = ContentWidget(content)
-        self.main_layout.addWidget(self.content_area)
+        self.phone_label = QLabel('Τηλέφωνο:', self)
+        self.phone_edit = QLineEdit(self)
+        self.phone_edit.setReadOnly(True)
+        self.phone_edit.setText(user_data["phone"])
+        left_box.addWidget(self.phone_label)
+        left_box.addWidget(self.phone_edit)
 
-    def close_application(self):
-        if self.db_connection:
-            self.db_connection.close()
-        QApplication.instance().quit()
+        self.edit_button = QPushButton('Επεξεργασία', self)
+        self.edit_button.clicked.connect(self.enable_editing)
+        left_box.addWidget(self.edit_button)
 
-    def connect_to_database(self):
+        self.save_button = QPushButton('Αποθήκευση', self)
+        self.save_button.clicked.connect(self.save_data)
+        self.save_button.setVisible(False)  # initially hidden
+        left_box.addWidget(self.save_button)
+
+        left_box.addWidget(QTextEdit(self))
+
+        right_box = QVBoxLayout()
+        right_label = QLabel('Ειδοποιήσεις', self)
+        right_label.setAlignment(Qt.AlignCenter)
+        right_label.setStyleSheet("font-size: 16px; font-weight: bold;")
+        right_box.addWidget(right_label)
+        right_box.addWidget(QLineEdit(self))
+        right_box.addWidget(QTextEdit(self))
+
+        bottom_layout.addLayout(left_box)
+        bottom_layout.addLayout(right_box)
+
+        home_layout.addLayout(bottom_layout)
+
+        home_widget.setLayout(home_layout)
+        return home_widget
+
+    def enable_editing(self):
+        self.name_edit.setReadOnly(False)
+        self.email_edit.setReadOnly(False)
+        self.phone_edit.setReadOnly(False)
+        self.save_button.setVisible(True)  # show the save button
+
+    def save_data(self):
+        # Add code here to save the data
+        self.name_edit.setReadOnly(True)
+        self.email_edit.setReadOnly(True)
+        self.phone_edit.setReadOnly(True)
+        self.save_button.setVisible(False)  # hide the save button again
+
+    def create_menubar(self):
+        menubar = QMenuBar(self)
+        self.setMenuBar(menubar)
+
+    def logout(self):
+        self.close()  # Close the main window
+        self.login_window = LoginWindow()  # Show the login window
+        self.login_window.show()
+
+class LoginWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('Login')
+        self.setGeometry(100, 100, 600, 300)
+
+        layout = QVBoxLayout()
+
+        # Create a frame for the input fields with a green border
+        frame = QFrame(self)
+        frame.setFrameShape(QFrame.Box)
+        frame.setStyleSheet("border: 2px solid green;")
+        frame_layout = QVBoxLayout(frame)
+
+        self.username_input = QLineEdit(self)
+        self.username_input.setPlaceholderText('Username')
+        frame_layout.addWidget(self.username_input)
+
+        self.password_input = QLineEdit(self)
+        self.password_input.setPlaceholderText('Password')
+        self.password_input.setEchoMode(QLineEdit.Password)
+        frame_layout.addWidget(self.password_input)
+
+        # Add frame to the main layout
+        layout.addWidget(frame)
+
+        login_button = QPushButton('Login', self)
+        login_button.setStyleSheet("background-color: green; color: white;")
+        login_button.clicked.connect(self.check_login)
+        layout.addWidget(login_button)
+
+        # Connect the return key to the login button
+        self.username_input.returnPressed.connect(self.check_login)
+        self.password_input.returnPressed.connect(self.check_login)
+
+        self.setLayout(layout)
+
+    @pyqtSlot()
+    def check_login(self):
+        username = self.username_input.text()
+        password = self.password_input.text()
+
+        if not username or not password:
+            QMessageBox.warning(self, 'Error', 'Please enter both username and password.')
+        else:
+            user_data = self.validate_user(username, password)
+            if user_data:
+                self.accept_login(user_data)
+            else:
+                QMessageBox.warning(self, 'Error', 'Invalid username or password.')
+
+    def validate_user(self, username, password):
         try:
-            self.db_connection = mysql.connector.connect(
-                host='localhost',
-                user='root',
-                password='1084590',
-                database='medlink'
+            # Establish connection to MySQL
+            conn = mysql.connector.connect(
+                host="localhost",
+                user="root",
+                password="1084590",
+                database="medlink"
             )
-            if self.db_connection.is_connected():
-                print('Connected to MySQL database')
+            cursor = conn.cursor(dictionary=True)  # Use dictionary cursor to fetch data as a dictionary
+
+            tables = ['citizen', 'doctor', 'pharmacist']  # Replace with your actual table names
+
+            for table in tables:
+                cursor.execute(f"SELECT * FROM {table} WHERE username=%s AND password=%s", (username, password))
+                result = cursor.fetchone()
+                if result:
+                    conn.close()
+                    return result
+
+            conn.close()
+            return None
         except mysql.connector.Error as err:
-            print(f"Error: {err}")
+            print("Error:", err)  # Handle connection errors
+            QMessageBox.warning(self, 'Database Error', f"An error occurred: {err}")
+            return None
 
-    def fetch_data(self):
-        if self.db_connection:
-            cursor = self.db_connection.cursor()
-            cursor.execute("SELECT * FROM your_table")
-            result = cursor.fetchall()
-            for row in result:
-                print(row)
+    def accept_login(self, user_data):
+        self.main_window = MainWindow(user_data)
+        self.main_window.show()
+        self.close()
 
-if __name__ == '__main__':
+def main():
     app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
+    login = LoginWindow()
+    login.show()
     sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()
