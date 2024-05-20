@@ -1,0 +1,124 @@
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QLineEdit, QTextEdit, QTabWidget, QMenuBar, QMessageBox, QTableWidget, QTableWidgetItem
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
+from threading import Thread
+import socket
+
+class ChatWidget(QWidget):
+    def __init__(self, username, server_address, server_port):
+        super().__init__()
+        self.username = username
+        self.server_address = server_address
+        self.server_port = server_port
+
+        self.layout = QVBoxLayout()
+
+        self.chat_area = QTextEdit(self)
+        self.chat_area.setReadOnly(True)
+
+        self.input_layout = QHBoxLayout()
+        self.message_input = QLineEdit(self)
+        self.send_button = QPushButton("Αποστολή", self)
+        self.send_button.clicked.connect(self.send_message)
+
+        self.input_layout.addWidget(self.message_input)
+        self.input_layout.addWidget(self.send_button)
+
+        self.layout.addWidget(self.chat_area)
+        self.layout.addLayout(self.input_layout)
+
+        self.setLayout(self.layout)
+
+        # Ξεκινήστε ένα thread για να ακούει για μηνύματα από το διακομιστή
+        self.listen_thread = Thread(target=self.listen_for_messages)
+        self.listen_thread.daemon = True
+        self.listen_thread.start()
+
+    def send_message(self):
+        message = self.message_input.text()
+        if message:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect((self.server_address, self.server_port))
+                s.sendall(message.encode('utf-8'))
+            self.chat_area.append(f"{self.username}: {message}")
+            self.message_input.clear()
+
+    def listen_for_messages(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((self.server_address, self.server_port))
+            s.listen()
+            while True:
+                conn, addr = s.accept()
+                with conn:
+                    data = conn.recv(1024)
+                    if data:
+                        message = data.decode('utf-8')
+                        self.chat_area.append(message)
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle('ΚΑΛΩΣ ΗΡΘΕΣ "ΟΝΟΜΑ ΧΡΗΣΤΗ"')
+        self.setWindowIcon(QIcon('app_icon.png'))
+        self.setFixedSize(1200, 600)
+
+        self.main_layout = QHBoxLayout()
+        self.menu_widget = self.create_menu()
+        self.main_layout.addWidget(self.menu_widget)
+
+        self.right_widget = QTabWidget()
+        self.right_widget.tabBar().setObjectName("mainTab")
+
+        self.tab1 = ChatWidget("Χρήστης 1", "localhost", 12345)  # Χρήστης 1
+        self.tab2 = ChatWidget("Χρήστης 2", "localhost", 12345)  # Χρήστης 2
+        self.right_widget.addTab(self.tab1, '')
+        self.right_widget.addTab(self.tab2, '')
+
+        self.right_widget.setCurrentIndex(0)
+        self.right_widget.setStyleSheet('''QTabBar::tab{width: 0; height: 0; margin: 0; padding: 0; border: none;}''')
+
+        self.main_layout.addWidget(self.right_widget)
+        self.main_layout.setStretch(0, 1)
+        self.main_layout.setStretch(1, 4)
+
+        main_widget = QWidget()
+        main_widget.setLayout(self.main_layout)
+        self.setCentralWidget(main_widget)
+
+        self.create_menubar()
+
+    def create_menu(self):
+        menu_layout = QVBoxLayout()
+        self.add_menu_button(menu_layout, 'ΑΡΧΙΚΗ', 0)
+        self.add_menu_button(menu_layout, 'ΣΥΝΟΜΙΛΙΑ', 1)
+        self.add_menu_button(menu_layout, 'ΒΟΗΘΕΙΑ', 2)
+
+        exit_button = QPushButton('ΕΞΟΔΟΣ')
+        exit_button.clicked.connect(self.close_application)
+        menu_layout.addWidget(exit_button)
+        menu_layout.addStretch()
+
+        menu_widget = QWidget()
+        menu_widget.setLayout(menu_layout)
+        menu_widget.setStyleSheet("background-color: #CDEAC0;")
+        return menu_widget
+
+    def add_menu_button(self, menu_layout, text, index):
+               button = QPushButton(text, self)
+               button.clicked.connect(lambda: self.right_widget.setCurrentIndex(index))
+               menu_layout.addWidget(button)
+
+    def create_menubar(self):
+        menubar = QMenuBar(self)
+        self.setMenuBar(menubar)
+
+    def close_application(self):
+        QApplication.instance().quit()
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
