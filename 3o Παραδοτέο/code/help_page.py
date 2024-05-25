@@ -93,7 +93,7 @@ class MedicineWidget(QWidget):
              "prescription_required": False},
             {"name": "Αμοξικιλλίνη", "description": "Αντιβιοτικό για τη θεραπεία βακτηριακών λοιμώξεων",
              "prescription_required": True},
-            {"name": "Καταλληλόλ", "description": "Για την αντιμετώπιση του βήχα", "prescription_required": False},
+            {"name": "Βουδεσονίδη", "description": "Για την αντιμετώπιση του βήχα", "prescription_required": False},
         ]
 
         # Εκπομπή των αποτελεσμάτων χρησιμοποιώντας το σήμα medicine_selected
